@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">系统更新</string>
+    <string name="service_name">升级服务</string>
+    <string name="cancel">取消</string>
+    <string name="download">下载</string>
+    <string name="check">检查更新</string>
+    <string name="install">立即安装</string>
+
+    <string name="detail_querying">正在检测更新...</string>
+    <string name="detail_server_error">无法检测更新</string>
+
+
+    <string name="version_cur">当前版本</string>
+    <string name="version_new">最新版本</string>
+    <string name="version_description">新版本特性:\n本使用条款和条件（“使用条款”）适用于网址为www.avatarmind.com的网站
+    （简称“本网站”）以及关联方链接至www.avatarmind.com的所有相关网站，本网站是阿凡达机器人及其许可人的财产。除非另有指定，本
+    网站所指的 “Avatarmind”, “阿凡达机器人”, “本公司” 或 “我们” 为南京阿凡达机器人科技有限公司。若您遵守本使用条款，阿凡达
+    机器人即授予您一项个人、非排他性、不可转让、有限的权利以登录并使用本网站。本网站是阿凡达机器人的财产。您使用本网站，即表示您
+    同意本使用条款；如果您不同意，请勿使用本网站。阿凡达机器人保留自行决定在任何时候变更、修改、增加或删除本使用条款部分内容的权
+    利。我们会以适当方式通知您。您在变更信息发布之后继续使用本网站，即表示您同意且接受该变更</string>
+
+    <string name="tip_ver_finish">已是最新版本</string>
+    <string name="tip_downloading">正在下载...</string>
+    <string name="tip_download_failed">下载失败</string>
+    <string name="tip_download_ok">下载完成</string>
+
+
+
+
+    <!-- detail -->
+    <string name="detail_version_title">版本:</string>
+    <string name="detail_version_size">大小:</string>
+    <string name="detail_log_title">更新日志:</string>
+    <string name="detail_btn_download">开始下载</string>
+    <string name="detail_btn_goondownload">继续下载</string>
+    <string name="detail_btn_downloading">正在下载 ...</string>
+    <string name="detail_btn_check">开始验证</string>
+    <string name="detail_btn_checking">正在验证 ...</string>
+    <string name="detail_btn_retry">重新下载</string>
+    <string name="detail_btn_install">开始安装</string>
+    <string name="detail_download_percent"><xliff:g id="download_percent">%s</xliff:g>\%</string>
+    <string name="detail_download_size"><xliff:g id="download_size">%s</xliff:g>/<xliff:g id="download_sum">%s</xliff:g></string>
+
+    <!-- notification -->
+    <string name="noti_title">系统更新包</string>
+    <string name="noti_new">发现新版本，点击查看详情</string>
+    <string name="noti_check">下载完成，点此验证</string>
+    <string name="noti_checking">下载完成，正在验证 ...</string>
+    <string name="noti_check_fail">验证失败，点此重新下载</string>
+    <string name="noti_install">验证成功，点此安装</string>
+    <string name="noti_finish">恭喜你，系统升级成功</string>
+    <string name="noti_install_fail">系统升级失败，点此重新下载</string>
+    <string name="noti_download_desp">下载中...</string>
+    <string name="noti_download_ok">下载完成</string>
+    <string name="noti_download_fail">下载失败，请重新下载</string>
+
+    <string name="noti_charging">升级时请连接充电器</string>
+    <string name="noti_sapce_notenough">存储空间不足</string>
+
+
+
+    <string name="dialog_download_fail">下载失败，请重试</string>
+    <string name="dialog_check_fail">验证失败，请重新下载</string>
+    <string name="dialog_low_battery">电量过低，无法安装系统更新。</string>
+    <string name="ok">确定</string>
+    <string name="dialog_support_mobile_network">您当前使用的是移动网络，下载更新可能会产生较大的流量费用，建议使用WIFI网络下载，是否继续？</string>
+    <string name="go_on">继续</string>
+    <string name="wifi_settings">设置WIFI</string>
+    <string name="init_dialog">初始化失败，请打开WIFI并检查网络设置。</string>
+
+    <string name="install_prepare">正在执行准备工作,请耐心等候...</string>
+    <string name="button_query">检查更新</string>
+    <string name="button_download">下载更新</string>
+    <string name="button_install">安装更新</string>
+    <string name="button_redownload">重新下载</string>
+
+</resources>
