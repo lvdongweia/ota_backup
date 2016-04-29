@@ -39,16 +39,18 @@ public class OTADownloadMgr {
             int status = (Integer) msg.obj;
             if (status == DownloadManager.STATUS_SUCCESSFUL) {
                 Util.Logd(TAG, "DownloadManager.STATUS_SUCCESSFUL");
-
                 // 下载成功的处理
                 downloadSuccess();
                 // 设置状态
                 UpdateStatus.setStatus(UpdateStatus.DOWNLOAD_OK);
+
+                // 获取下载文件的md5
+                ((OTAUpdateService)mContext).getUpdatePackageMD5();
+
                 // 下载成功通知用户
                 ((OTAUpdateService)mContext).notifyClientStatus();
             } else if (status == DownloadManager.STATUS_FAILED) {
                 Util.Logd(TAG, "DownloadManager.STATUS_FAILED");
-
                 // 下载失败的处理
                 downloadFailed();
                 // 设置状态
@@ -124,7 +126,6 @@ public class OTADownloadMgr {
     }
 
     public int getProgress() {
-        Util.Logd(TAG, "get progress:" + mProgress);
         return mProgress;
     }
 
@@ -185,6 +186,9 @@ public class OTADownloadMgr {
         File path = new File(ConstValue.DOWNLOAD_PATH);
         String tmpFiles = mSharePrefs.getString(ConstValue.UNZIP_TMP_FILES, null);
         if (tmpFiles != null) {
+            // clear md5
+            mSharePrefs.edit().remove(ConstValue.PACKAGE_MD5).commit();
+
             Util.Logd(TAG, "Tmp files is not null:");
             String[] file = tmpFiles.split(";");
             for (int i = 0; i < file.length; i++) {
@@ -192,8 +196,8 @@ public class OTADownloadMgr {
                 boolean ret = delFile.delete();
 
                 Util.Logd(TAG, "Delete:" + delFile + " ret=" + ret);
-
             }
+            // clear unzip files
             mSharePrefs.edit().remove(ConstValue.UNZIP_TMP_FILES).commit();
         }
     }

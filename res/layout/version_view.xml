@@ -30,10 +30,22 @@
                 android:gravity="center_vertical|right"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tips"
-            style="@style/Tips"
-            android:layout_marginTop="10px"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10px">
+            <TextView
+                android:id="@+id/tips"
+                android:layout_weight="1"
+                style="@style/Tips" />
+
+            <TextView
+                android:id="@+id/progress"
+                style="@style/Tips"
+                android:gravity="right"
+                android:visibility="gone"/>
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/download_bar"
@@ -74,13 +86,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15px"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/warning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15px"
+                android:gravity="center_horizontal"
                 android:visibility="gone">
                 
                 <ImageView
@@ -98,8 +111,9 @@
 
             <Button
                 android:id="@+id/install_button"
-                android:layout_width="850.0px"
+                android:layout_width="700.0px"
                 android:layout_height="160.0px"
+                android:layout_marginTop="15px"
                 android:background="@drawable/install_button"
                 android:layout_gravity="center_horizontal"
                 android:textSize="72px"

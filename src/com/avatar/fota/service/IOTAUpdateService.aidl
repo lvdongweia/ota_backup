@@ -7,6 +7,7 @@ interface IOTAUpdateService {
     String getCurrentVersion();
     String getNewVersion();
     int progress();
-    boolean download();
-    boolean install();
+    int download();
+    int install();
+    int getError();
 }

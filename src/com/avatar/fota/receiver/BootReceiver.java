@@ -19,7 +19,7 @@ public class BootReceiver extends BroadcastReceiver {
             Util.Logd(TAG, "Boot complete then start ota service");
 
             Intent otaIntent = new Intent(mContext, OTAUpdateService.class);
-           // mContext.startService(otaIntent);
+            mContext.startService(otaIntent);
         }
     }
 }

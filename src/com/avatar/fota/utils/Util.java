@@ -1,15 +1,28 @@
 package com.avatar.fota.utils;
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Environment;
 import android.os.StatFs;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,7 +140,7 @@ public class Util {
             }
 
             OutputStream out = new FileOutputStream(dstFile);
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[4096*4096];
             int readLen = 0;
             while ((readLen = in.read(buffer)) > 0) {
                 out.write(buffer, 0, readLen);
@@ -155,5 +168,60 @@ public class Util {
         long availableBlocks = stat.getAvailableBlocksLong();
 
         return blockSize * availableBlocks;
+    }
+
+    public static String getFileMD5(File file) {
+        if (!file.isFile())
+            return null;
+
+        try {
+            long start = System.currentTimeMillis();
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            InputStream in = new FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            int redLen = 0;
+            while ((redLen = in.read(buffer)) > 0) {
+                md5.update(buffer, 0, redLen);
+            }
+            in.close();
+            long end = System.currentTimeMillis();
+
+            BigInteger bgInt = new BigInteger(1, md5.digest());
+            String md5Str = bgInt.toString(16).toLowerCase();
+            Util.Logd(TAG, "File:" + file.getName() + " MD5:" + md5Str + " Use:" + (end-start)/1000 + "s");
+            return md5Str;
+        } catch (Exception e) {
+            Util.Loge(TAG, e.getMessage());
+        }
+
+        return null;
+    }
+
+    public static Dialog popProgressDialog(Context context, CharSequence title,
+                                           CharSequence message) {
+        ProgressDialog pg = new ProgressDialog(context);
+        pg.setTitle(title);
+        pg.setMessage(message);
+        pg.setIndeterminate(true);
+        pg.setCancelable(false);
+        pg.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        pg.show();
+
+        return pg;
+    }
+
+    public static Dialog popAlertDialog(Context context, CharSequence title,
+                                        CharSequence message,
+                                        CharSequence pt, DialogInterface.OnClickListener pCl,
+                                        CharSequence nt, DialogInterface.OnClickListener nCl) {
+        AlertDialog.Builder ab = new AlertDialog.Builder(context);
+        ab.setTitle(title);
+        ab.setMessage(message);
+        if (pt != null && pCl != null)
+            ab.setPositiveButton(pt, pCl);
+        if (nt != null && nCl != null)
+            ab.setNegativeButton(nt, nCl);
+        ab.show();
+        return ab.create();
     }
 }

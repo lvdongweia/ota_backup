@@ -41,5 +41,6 @@
         android:textSize="46px"
         android:textStyle="bold"
         android:clickable="true"
-        android:onClick="onDownload"/>
+        android:onClick="onDownload"
+        android:visibility="invisible"/>
 </LinearLayout>

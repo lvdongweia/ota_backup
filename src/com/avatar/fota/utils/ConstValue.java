@@ -26,6 +26,7 @@ public class ConstValue {
     public static final String INSTALL_PACKAGE = "robot_update.zip";
     public static final String DOWNLOAD_ID  = "download_id";
     public static final String UNZIP_TMP_FILES = "unzip_tmp_files";
+    public static final String PACKAGE_MD5 = "package_md5";
 
     public static final String JSON_ROBOTCODE = "robotCode";
     public static final String JSON_ROBOTMODEL = "type";
@@ -37,7 +38,7 @@ public class ConstValue {
     public static final String JSON_RETCODE = "returnCode";
     public static final String JSON_RETMSG  = "returnMsg";
     public static final String JSON_BODY    = "body";
-
+    public static final String JSON_MD5     = "md5";
     public static final String JSON_DLURL   = "downloadPath";
 
     /**

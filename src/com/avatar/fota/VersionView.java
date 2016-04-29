@@ -23,6 +23,7 @@ public class VersionView extends LinearLayout{
     private TextView mTipsView;
     private TextView mReleaseNoteView;
     private TextView mWarningTextView;
+    private TextView mProgressTextView;
     private ProgressBar mProgressBar;
     private ImageView mDevideLineView;
     private LinearLayout mWarningView;
@@ -43,6 +44,7 @@ public class VersionView extends LinearLayout{
         mTipsView = (TextView)findViewById(R.id.tips);
         mReleaseNoteView = (TextView)findViewById(R.id.release_note);
         mWarningTextView = (TextView)findViewById(R.id.warn_text);
+        mProgressTextView = (TextView)findViewById(R.id.progress);
         mProgressBar = (ProgressBar)findViewById(R.id.download_bar);
         mDevideLineView = (ImageView)findViewById(R.id.line_devide);
         mWarningView = (LinearLayout)findViewById(R.id.warning);
@@ -94,18 +96,25 @@ public class VersionView extends LinearLayout{
 
     public void startDownload() {
         setTipText(R.string.tip_downloading);
-        mProgressBar.setVisibility(View.VISIBLE);
-        mProgressBar.setProgress(0);
         mDevideLineView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
+        mProgressTextView.setVisibility(View.VISIBLE);
+        mWarningView.setVisibility(View.GONE);
+        mInstallBtnView.setVisibility(View.GONE);
+
+        mProgressBar.setProgress(0);
+        mProgressTextView.setText("0%");
     }
 
     public void setDownloadEnd() {
         mProgressBar.setVisibility(View.GONE);
+        mProgressTextView.setVisibility(View.GONE);
         mDevideLineView.setVisibility(View.VISIBLE);
     }
 
     public void setProgress(int p) {
         mProgressBar.setProgress(p);
+        mProgressTextView.setText(p + "%");
     }
 
     public void setInstallEnable(boolean enabled) {
@@ -120,6 +129,11 @@ public class VersionView extends LinearLayout{
 
     public void startInstall() {
         mInstallBtnView.setEnabled(false);
+    }
+
+    public void setInatallEnd() {
+        mInstallBtnView.setEnabled(true);
+        mInstallBtnView.setVisibility(View.GONE);
     }
 
     private OnClickListener mInstallClick = new OnClickListener() {

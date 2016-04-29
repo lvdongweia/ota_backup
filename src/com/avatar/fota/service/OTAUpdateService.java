@@ -15,8 +15,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RecoverySystem;
 import android.os.RemoteException;
+import android.os.Process;
 import android.robot.scheduler.SchedulerManager;
 import android.view.WindowManager;
+
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -56,22 +58,39 @@ public class OTAUpdateService extends Service {
     private String mLocalVersion = "";
     private String mNewVersion = "";
     private String mNewVerUrl;
+    private String mNewVerMD5;
+    private int mError;
     private SharedPreferences mSharedPrefrns;
 
     private Thread mQueryThrad;
+    private ProgressDialog mProgressDialog;
 
-    private static final int POP_ALERT_DIALOG = 0;
-    private static final int DIMISS_DIALOG = 1;
+    private static final int MSG_POP_ALERT_DIALOG = 0;
+    private static final int MSG_DIMISS_DIALOG = 1;
+
+    public static final int ERROR_NONE      = 0;
+    public static final int ERROR_NO_UPDATE = -1;
+    public static final int ERROR_DOWNLOADING = -2;
+    public static final int ERROR_FILE_NOTFOUND = -3;
+    public static final int ERROR_NET_CONNECT = -4;
+    public static final int ERROR_CHECK_FAILED = -5;
+    public static final int ERROR_LOW_BATTERY = -6;
+    public static final int ERROR_STORAGE = -7;
+    public static final int ERROR_SPACE_INSUFFICIENT = -8;
+
 
     private Handler mOTAHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case POP_ALERT_DIALOG:
+                case MSG_POP_ALERT_DIALOG:
                     popAlertDialog();
                     break;
 
-                case DIMISS_DIALOG:
+                case MSG_DIMISS_DIALOG:
+                    if (mProgressDialog != null) {
+                        mProgressDialog.dismiss();
+                    }
                     break;
 
                 default:
@@ -102,13 +121,18 @@ public class OTAUpdateService extends Service {
         }
 
         @Override
-        public boolean download() {
+        public int download() {
             return downloadUpdate();
         }
 
         @Override
-        public boolean install() {
+        public int install() {
             return installUpdate();
+        }
+
+        @Override
+        public int getError() {
+            return mError;
         }
     }
 
@@ -130,7 +154,7 @@ public class OTAUpdateService extends Service {
         mContext = this;
 
         mSharedPrefrns = getSharedPreferences(
-            ConstValue.OTA_DATA, Context.MODE_PRIVATE);
+                ConstValue.OTA_DATA, Context.MODE_PRIVATE);
 
         mBinder = new OTAUpdateStub();
         mDownload = new OTADownloadMgr(this);
@@ -140,7 +164,7 @@ public class OTAUpdateService extends Service {
 
         // 注册广播接收：网络变化
         registerReceiver(mNetWorkReceiver, new IntentFilter(
-            ConnectivityManager.CONNECTIVITY_ACTION));
+                ConnectivityManager.CONNECTIVITY_ACTION));
 
         // 检查更新
         autoQueryNewVersion();
@@ -189,6 +213,10 @@ public class OTAUpdateService extends Service {
         }
     }
 
+    private void setError(int e) {
+        mError = e;
+    }
+
     private void putStringToSP(String key, String value) {
         SharedPreferences.Editor editor = mSharedPrefrns.edit();
         editor.putString(key, value);
@@ -198,7 +226,7 @@ public class OTAUpdateService extends Service {
     private void autoQueryNewVersion() {
         // 获取上次更新时间
         String lastupdate = mSharedPrefrns.getString(
-            ConstValue.LAST_QUERY, ConstValue.DEFAULT_TIME);
+                ConstValue.LAST_QUERY, ConstValue.DEFAULT_TIME);
 
         long diffTime = Util.getTimeDiff(Util.getTimeNow(), lastupdate);
         // 距离上次查询超过４小时
@@ -232,8 +260,8 @@ public class OTAUpdateService extends Service {
      */
     private void queryNewVersion() {
         // 重置版本信息
-        mNewVersion = "null";
-        mNewVerUrl = "null";
+        mNewVersion = "";
+        mNewVerUrl = null;
 
         // wifi网络是否连接
         if (!mDownload.isNetWorkConnect()) {
@@ -268,102 +296,162 @@ public class OTAUpdateService extends Service {
         notifyClientStatus();
     }
 
-    private boolean queryVerByHttp() throws IOException {
-        /* 建立HTTP连接 */
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(ConstValue.VERSION_URL);
+    public void getUpdatePackageMD5() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mNewVerMD5 = queryMD5ByHttp();
+            }
+        }).start();
+    }
 
+    private String queryMD5ByHttp() {
+        if (mNewVerUrl == null)
+            return null;
+
+        //get md5 server address
+        String md5Url = mNewVerUrl.replace("download", "md5");
+        HttpPost httpPost = new HttpPost(md5Url);
+
+        String md5 = null;
+        try {
+            String result = queryByHttp(httpPost);
+            if (result != null) {
+                JSONObject jsObj = new JSONObject(result);
+                String rtCode = jsObj.getString(ConstValue.JSON_RETCODE);
+                if (rtCode.equals("000")) {
+                    JSONObject jsBody = jsObj.getJSONObject(ConstValue.JSON_BODY);
+                    md5 = jsBody.getString(ConstValue.JSON_MD5);
+                }
+            }
+        } catch (IOException e) {
+            Util.Logd(TAG, e.getMessage());
+        } catch (JSONException e) {
+            Util.Loge(TAG, e.getMessage());
+        }
+
+        return md5;
+    }
+
+    private boolean queryVerByHttp() throws IOException {
+        boolean qSuccess = false;
+
+        try {
             // 设置请求信息
             JSONObject json = getVerJSON();
-
-            // 设置超时
-            httpclient.getParams().setIntParameter(
-                    CoreConnectionPNames.CONNECTION_TIMEOUT, ConstValue.NET_TIMEOUT);
-            httpclient.getParams().setIntParameter(
-                    CoreConnectionPNames.SO_TIMEOUT, ConstValue.NET_TIMEOUT);
-
+            HttpPost httppost = new HttpPost(ConstValue.VERSION_URL);
             // 设置HTTP请求头
             httppost.setEntity(new StringEntity(json.toString(), HTTP.UTF_8));
             httppost.setHeader(HTTP.CONTENT_TYPE, "application/json");
 
-            // 取得HTTP response
-            Util.Logd(TAG, "executing request " + httppost.getRequestLine());
-            HttpResponse response = httpclient.execute(httppost);
-
-            String respStr = "null";
-            int statusCode = response.getStatusLine().getStatusCode();
-            HttpEntity resEntity = response.getEntity();
-            if (resEntity != null) {
-                respStr = EntityUtils.toString(resEntity);
-            }
-            if (statusCode == HttpStatus.SC_OK) {
-                Util.Logd(TAG, "http response:" + respStr + " StatusCode:" + statusCode);
-
-                JSONObject jsResp = new JSONObject(respStr);
-                String rtCode = jsResp.getString(ConstValue.JSON_RETCODE);
+            String result = queryByHttp(httppost);
+            if (result != null) {
+                JSONObject jsObj = new JSONObject(result);
+                String rtCode = jsObj.getString(ConstValue.JSON_RETCODE);
                 if (rtCode.equals("000")) {
                     // 获取新版本信息
-                    JSONObject jsonBody = jsResp.getJSONObject(ConstValue.JSON_BODY);
+                    JSONObject jsBody = jsObj.getJSONObject(ConstValue.JSON_BODY);
                     mNewVersion = "1.0.0";
-                    mNewVerUrl = jsonBody.getString(ConstValue.JSON_DLURL);
+                    mNewVerUrl = jsBody.getString(ConstValue.JSON_DLURL);
+                    mNewVerMD5 = jsBody.getString(ConstValue.JSON_MD5);
 
                     UpdateStatus.setStatus(UpdateStatus.CATCH_NEW);
+                    qSuccess = true;
                 } else if (rtCode.equals("104")) {
                     // 已经是最新版本
                     UpdateStatus.setStatus(UpdateStatus.CATCH_NONE);
+                    qSuccess = true;
                 } else {
                     Util.Loge(TAG, "Server return error.(" + rtCode + ")");
                     UpdateStatus.setStatus(UpdateStatus.SERVER_ERROR);
-                    return false;
                 }
             }
-            else {
-                String eMsg = "http response failed:" + respStr + " StatusCode:" + statusCode;
-                throw new IOException(eMsg);
-            }
-
         } catch (JSONException e) {
             UpdateStatus.setStatus(UpdateStatus.SERVER_ERROR);
             Util.Loge(TAG, "JSONException-" + e.getMessage());
-            return false;
+        } catch (IOException e) {
+            UpdateStatus.setStatus(UpdateStatus.SERVER_ERROR);
+            Util.Logd(TAG, e.getMessage());
         }
-        
-        return true;
+
+        return qSuccess;
     }
 
-    private boolean downloadUpdate() {
+    private String queryByHttp(HttpPost httppost) throws IOException {
+        if (httppost == null)
+            return null;
+
+        String respStr = null;
+        HttpClient httpclient = new DefaultHttpClient();
+        // 设置超时
+        httpclient.getParams().setIntParameter(
+                CoreConnectionPNames.CONNECTION_TIMEOUT, ConstValue.NET_TIMEOUT);
+        httpclient.getParams().setIntParameter(
+                CoreConnectionPNames.SO_TIMEOUT, ConstValue.NET_TIMEOUT);
+
+        // 取得http response
+        Util.Logd(TAG, "executing request " + httppost.getRequestLine());
+        HttpResponse response = httpclient.execute(httppost);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        HttpEntity resEntity = response.getEntity();
+        if (resEntity != null) {
+            respStr = EntityUtils.toString(resEntity);
+        }
+        if (statusCode == HttpStatus.SC_OK) {
+            Util.Logd(TAG, "http response:" + respStr + " StatusCode:" + statusCode);
+        } else {
+            String eMsg = "http response failed:" + respStr + " StatusCode:" + statusCode;
+            throw new IOException(eMsg);
+        }
+
+        return respStr;
+    }
+
+    private int downloadUpdate() {
         if (mNewVerUrl == null) {
-            return false;
+            setError(ERROR_NO_UPDATE);
+            return ERROR_NO_UPDATE;
         }
 
         UpdateStatus status = UpdateStatus.getStatus();
         Util.Logd(TAG, "download status check:" + status.toString());
-        if (status == UpdateStatus.DOWNLOADING) return true;
-        if (status != UpdateStatus.CATCH_NEW && status != UpdateStatus.DOWNLOAD_FAILED)
-            return false;
+        if (status == UpdateStatus.DOWNLOADING) {
+            setError(ERROR_DOWNLOADING);
+            return ERROR_DOWNLOADING;
+        }
+        if (status != UpdateStatus.CATCH_NEW
+                && status != UpdateStatus.DOWNLOAD_FAILED
+                && status != UpdateStatus.INSTALL_FAILED) {
+            setError(ERROR_NO_UPDATE);
+            return ERROR_NO_UPDATE;
+        }
 
-        if (!mDownload.isNetWorkConnect())
-            return false;
+        if (!mDownload.isNetWorkConnect()) {
+            setError(ERROR_NET_CONNECT);
+            return ERROR_NET_CONNECT;
+        }
 
         // set status
         UpdateStatus.setStatus(UpdateStatus.DOWNLOADING);
-
         // start download
         mDownload.download(mNewVersion, mNewVerUrl);
 
-        return true;
+        return ERROR_NONE;
     }
 
     private int getDownloadProgress() {
         return mDownload.getProgress();
     }
 
-    private boolean installUpdate() {
+    private int installUpdate() {
         UpdateStatus status = UpdateStatus.getStatus();
         Util.Logd(TAG, "install status check:" + status.toString());
 
-        if (status != UpdateStatus.DOWNLOAD_OK) return false;
+        if (status != UpdateStatus.DOWNLOAD_OK) {
+            setError(ERROR_FILE_NOTFOUND);
+            return ERROR_FILE_NOTFOUND;
+        }
 
         // 电量检测
         // TODO
@@ -371,51 +459,72 @@ public class OTAUpdateService extends Service {
         // 存储空间检测
         long size = Util.getInternalMemorySize();
         if (size < ConstValue.INSTALL_MEMORY_NEED) {
-            return false;
+            setError(ERROR_STORAGE);
+            return ERROR_STORAGE;
         }
 
         // 检测文件是否存在
         File file = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
         if (!file.exists()) {
             Util.Loge(TAG, "Can't find update package.");
-            UpdateStatus.setStatus(UpdateStatus.DOWNLOAD_FAILED);
-            return false;
+            setError(ERROR_FILE_NOTFOUND);
+            return ERROR_FILE_NOTFOUND;
         }
 
         // 设置状态
         UpdateStatus.setStatus(UpdateStatus.INSTALLING);
-
-        // 弹出提示框
-        mOTAHandler.sendEmptyMessage(POP_ALERT_DIALOG);
+        // pop dialog
+        mOTAHandler.sendEmptyMessage(MSG_POP_ALERT_DIALOG);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
                 // 重启进行安装
                 try {
-                    // 解压缩文件并删除原文件，并检测
+                    // 获取安装文件
                     File updatePackage = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
+
+                    // 校验文件md5
+                    String md5 = Util.getFileMD5(updatePackage);
+                    if (mNewVerMD5 == null || !md5.equals(mNewVerMD5)) {
+                        Util.Logd(TAG, "Update package md5 check error.");
+                        // delete file
+                        updatePackage.delete();
+
+                        // cancel dialog
+                        mOTAHandler.sendEmptyMessage(MSG_DIMISS_DIALOG);
+
+                        setError(ERROR_CHECK_FAILED);
+                        UpdateStatus.setStatus(UpdateStatus.INSTALL_FAILED);
+                        notifyClientStatus();
+                        return;
+                    }
+
+                    // 解压缩文件并删除原文件
                     File[] files = Util.unzipFile(updatePackage.getPath(), updatePackage.getParent());
                     //updatePackage.delete();
 
-                    // 存储解压后文件信息，为了重启后删除这些文件
+                    // 存储解压后文件名，为了重启后删除这些文件
                     StringBuilder sigFile = new StringBuilder();
                     for (File fl : files) {
                         sigFile.append(fl.getName()).append(";");
                     }
                     mSharedPrefrns.edit().putString(ConstValue.UNZIP_TMP_FILES, sigFile.toString()).commit();
 
+                    // cancel dialog
+                    mOTAHandler.sendEmptyMessage(MSG_DIMISS_DIALOG);
+
                     File[] packages = getUpdateFiles(files);
-                    RecoverySystem.installPackages(mContext, packages);
+                    //RecoverySystem.installPackages(mContext, packages);
                 } catch (IOException e) {
                     Util.Loge(TAG, "Install package error.(" + e.getMessage() + ")");
-
-
                 }
             }
         }).start();
 
-        return true;
+        setError(ERROR_NONE);
+        return ERROR_NONE;
     }
 
     private String getRobotCode() {
@@ -434,10 +543,10 @@ public class OTAUpdateService extends Service {
             if (file.isFile()) {
                 String lowname = file.getName().toLowerCase();
                 if (lowname.contains(ConstValue.UPDATE_RM)
-                    || lowname.contains(ConstValue.UPDATE_RC)
-                    || lowname.contains(ConstValue.UPDATE_RP)
-                    || lowname.contains(ConstValue.UPDATE_RF)
-                    || lowname.contains(ConstValue.UPDATE_RB)) {
+                        || lowname.contains(ConstValue.UPDATE_RC)
+                        || lowname.contains(ConstValue.UPDATE_RP)
+                        || lowname.contains(ConstValue.UPDATE_RF)
+                        || lowname.contains(ConstValue.UPDATE_RB)) {
                     packages.add(file);
                 }
             }
@@ -448,14 +557,15 @@ public class OTAUpdateService extends Service {
     }
 
     private void popAlertDialog() {
-        ProgressDialog pd = new ProgressDialog(mContext);
-        pd.setTitle(R.string.app_name);
-        pd.setMessage(mContext.getResources().getString(R.string.install_prepare));
-        pd.setIndeterminate(true);
-        pd.setCancelable(false);
-        pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-
-        pd.show();
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog.setTitle(R.string.app_name);
+            mProgressDialog.setMessage(mContext.getResources().getString(R.string.install_prepare));
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        }
+        mProgressDialog.show();
     }
 
     private JSONObject getVerJSON() throws JSONException {
@@ -463,15 +573,15 @@ public class OTAUpdateService extends Service {
         String product = Build.PRODUCT;
 
         // 获取子系统版本
-        SchedulerManager sm = (SchedulerManager)getSystemService(Context.SCHEDULER_SERVICE);
+        SchedulerManager sm = (SchedulerManager) getSystemService(Context.SCHEDULER_SERVICE);
         String rcVer = sm.getSubSystemVersion(0x1);
         String rpVer = sm.getSubSystemVersion(0x2);
         String rfVer = sm.getSubSystemVersion(0x3);
         String rb_rVer = sm.getSubSystemVersion(0x4);
-        Util.Logd(TAG, "rcVer:" + rcVer +
+        /*Util.Logd(TAG, "rcVer:" + rcVer +
                 ",rpVer:" + rpVer +
                 ",rfVer:" + rfVer +
-                ",rb_rVer:" + rb_rVer);
+                ",rb_rVer:" + rb_rVer);*/
 
         JSONObject json = new JSONObject();
         json.put(ConstValue.JSON_ROBOTCODE, getRobotCode());

@@ -14,6 +14,7 @@ public enum UpdateStatus {
     CHECK_FAILED,     // check failed
     CHECK_OK,         // check finish ready to install
     INSTALLING,       // already install--latest
+    INSTALL_FAILED,
 
     STORAGE_INEQUACY; // storage inequacy
 

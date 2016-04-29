@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.avatar.fota.service.IOTAUpdateService;
 import com.avatar.fota.service.IOTAUpdateCallback;
+import com.avatar.fota.service.OTAUpdateService;
 import com.avatar.fota.utils.UpdateStatus;
 import com.avatar.fota.utils.Util;
 
@@ -63,7 +64,6 @@ public class OTAUpdateActivity extends Activity{
         @Override
         public void handleMessage(Message msg) {
             try {
-
                 switch (msg.what) {
                     case MSG_QUERY_VERSION:
                         loadQueryingView();
@@ -237,6 +237,11 @@ public class OTAUpdateActivity extends Activity{
                 createDownloadTask();
             } else if (status.equals(UpdateStatus.STORAGE_INEQUACY.toString())) {
 
+            } else if (status.equals(UpdateStatus.INSTALL_FAILED.toString())) {
+                if (mIOTAService.getError() == OTAUpdateService.ERROR_CHECK_FAILED) {
+                    mVersionView.setWarning(getString(R.string.error_check_failed));
+                    mDownloadBtn.setVisibility(View.VISIBLE);
+                }
             }
         } catch (RemoteException e) {
             Util.Logd(TAG, e.getMessage());
