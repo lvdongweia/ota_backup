@@ -1,5 +1,6 @@
 package com.avatar.fota.service;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -41,6 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import com.avatar.fota.InstallDialog;
 import com.avatar.fota.R;
 
 import com.avatar.fota.utils.ConstValue;
@@ -54,21 +57,24 @@ public class OTAUpdateService extends Service {
     private OTAUpdateStub mBinder;
     private OTADownloadMgr mDownload;
     private IOTAUpdateCallback mICallback;
+    private SharedPreferences mSharedPrefrns;
+    private Thread mQueryThrad;
+
+    private Dialog mProgressDialog;
 
     private String mLocalVersion = "";
     private String mNewVersion = "";
     private String mNewVerUrl;
     private String mNewVerMD5;
     private int mError;
-    private SharedPreferences mSharedPrefrns;
+    private int mBatteryLevel = 100;
+    private boolean mIsCharging;
 
-    private Thread mQueryThrad;
-    private ProgressDialog mProgressDialog;
 
     private static final int MSG_POP_ALERT_DIALOG = 0;
     private static final int MSG_DIMISS_DIALOG = 1;
 
-    public static final int ERROR_NONE      = 0;
+    public static final int ERROR_NONE = 0;
     public static final int ERROR_NO_UPDATE = -1;
     public static final int ERROR_DOWNLOADING = -2;
     public static final int ERROR_FILE_NOTFOUND = -3;
@@ -76,8 +82,6 @@ public class OTAUpdateService extends Service {
     public static final int ERROR_CHECK_FAILED = -5;
     public static final int ERROR_LOW_BATTERY = -6;
     public static final int ERROR_STORAGE = -7;
-    public static final int ERROR_SPACE_INSUFFICIENT = -8;
-
 
     private Handler mOTAHandler = new Handler() {
         @Override
@@ -126,8 +130,8 @@ public class OTAUpdateService extends Service {
         }
 
         @Override
-        public int install() {
-            return installUpdate();
+        public void install() {
+            installUpdate();
         }
 
         @Override
@@ -162,9 +166,8 @@ public class OTAUpdateService extends Service {
         // 获取rm版本信息
         mLocalVersion = Build.VERSION.INCREMENTAL;
 
-        // 注册广播接收：网络变化
-        registerReceiver(mNetWorkReceiver, new IntentFilter(
-                ConnectivityManager.CONNECTIVITY_ACTION));
+        // 监测电量
+        monitorBatteryState();
 
         // 检查更新
         autoQueryNewVersion();
@@ -193,12 +196,24 @@ public class OTAUpdateService extends Service {
         return super.onUnbind(intent);
     }
 
-    private BroadcastReceiver mNetWorkReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBatteryState = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            if (scale > 0 && level > 0) {
+                mBatteryLevel = (level * 100) / scale;
+                Util.Logd(TAG, "battery change:" + mBatteryLevel);
+            }
+            mIsCharging = (intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                    == BatteryManager.BATTERY_STATUS_CHARGING);
         }
     };
+
+    private void monitorBatteryState() {
+        IntentFilter intent = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mBatteryState, intent);
+    }
 
     public void notifyClientStatus() {
         String status = UpdateStatus.getStatus().toString();
@@ -239,7 +254,7 @@ public class OTAUpdateService extends Service {
                         mQueryThrad.start();
                     }
                 }
-            }, 2000);
+            }, 2000, ConstValue.SP_QUERY_TIME);
         }
     }
 
@@ -409,6 +424,7 @@ public class OTAUpdateService extends Service {
     }
 
     private int downloadUpdate() {
+        setError(ERROR_NONE);
         if (mNewVerUrl == null) {
             setError(ERROR_NO_UPDATE);
             return ERROR_NO_UPDATE;
@@ -420,16 +436,17 @@ public class OTAUpdateService extends Service {
             setError(ERROR_DOWNLOADING);
             return ERROR_DOWNLOADING;
         }
-        if (status != UpdateStatus.CATCH_NEW
-                && status != UpdateStatus.DOWNLOAD_FAILED
-                && status != UpdateStatus.INSTALL_FAILED) {
-            setError(ERROR_NO_UPDATE);
-            return ERROR_NO_UPDATE;
-        }
 
         if (!mDownload.isNetWorkConnect()) {
             setError(ERROR_NET_CONNECT);
             return ERROR_NET_CONNECT;
+        }
+
+        // 存储空间检测
+        long size = Util.getInternalMemorySize();
+        if (size < ConstValue.DOWNLOAD_MEMORY_NEED) {
+            setError(ERROR_STORAGE);
+            return ERROR_STORAGE;
         }
 
         // set status
@@ -437,6 +454,7 @@ public class OTAUpdateService extends Service {
         // start download
         mDownload.download(mNewVersion, mNewVerUrl);
 
+        setError(ERROR_NONE);
         return ERROR_NONE;
     }
 
@@ -444,44 +462,44 @@ public class OTAUpdateService extends Service {
         return mDownload.getProgress();
     }
 
-    private int installUpdate() {
-        UpdateStatus status = UpdateStatus.getStatus();
-        Util.Logd(TAG, "install status check:" + status.toString());
-
-        if (status != UpdateStatus.DOWNLOAD_OK) {
-            setError(ERROR_FILE_NOTFOUND);
-            return ERROR_FILE_NOTFOUND;
-        }
-
-        // 电量检测
-        // TODO
-
-        // 存储空间检测
-        long size = Util.getInternalMemorySize();
-        if (size < ConstValue.INSTALL_MEMORY_NEED) {
-            setError(ERROR_STORAGE);
-            return ERROR_STORAGE;
-        }
-
-        // 检测文件是否存在
-        File file = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
-        if (!file.exists()) {
-            Util.Loge(TAG, "Can't find update package.");
-            setError(ERROR_FILE_NOTFOUND);
-            return ERROR_FILE_NOTFOUND;
-        }
-
-        // 设置状态
-        UpdateStatus.setStatus(UpdateStatus.INSTALLING);
-        // pop dialog
-        mOTAHandler.sendEmptyMessage(MSG_POP_ALERT_DIALOG);
-
+    private void installUpdate() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-                // 重启进行安装
+
+                // pop dialog
+                mOTAHandler.sendEmptyMessage(MSG_POP_ALERT_DIALOG);
+                setError(ERROR_NONE);
+
                 try {
+                    UpdateStatus status = UpdateStatus.getStatus();
+                    Util.Logd(TAG, "install status check:" + status.toString());
+
+                    // 电量检测
+                    if (!isBatteryEnough()) {
+                        setError(ERROR_LOW_BATTERY);
+                        return;
+                    }
+
+                    // 存储空间检测
+                    long size = Util.getInternalMemorySize();
+                    if (size < ConstValue.INSTALL_MEMORY_NEED) {
+                        setError(ERROR_STORAGE);
+                        return;
+                    }
+
+                    // 检测文件是否存在
+                    File file = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
+                    if (!file.exists()) {
+                        Util.Loge(TAG, "Can't find update package.");
+                        setError(ERROR_FILE_NOTFOUND);
+                        return;
+                    }
+
+                    // 设置状态
+                    UpdateStatus.setStatus(UpdateStatus.INSTALLING);
+
                     // 获取安装文件
                     File updatePackage = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
 
@@ -492,12 +510,7 @@ public class OTAUpdateService extends Service {
                         // delete file
                         updatePackage.delete();
 
-                        // cancel dialog
-                        mOTAHandler.sendEmptyMessage(MSG_DIMISS_DIALOG);
-
                         setError(ERROR_CHECK_FAILED);
-                        UpdateStatus.setStatus(UpdateStatus.INSTALL_FAILED);
-                        notifyClientStatus();
                         return;
                     }
 
@@ -512,19 +525,28 @@ public class OTAUpdateService extends Service {
                     }
                     mSharedPrefrns.edit().putString(ConstValue.UNZIP_TMP_FILES, sigFile.toString()).commit();
 
-                    // cancel dialog
-                    mOTAHandler.sendEmptyMessage(MSG_DIMISS_DIALOG);
-
                     File[] packages = getUpdateFiles(files);
-                    //RecoverySystem.installPackages(mContext, packages);
+                    RecoverySystem.installPackages(mContext, packages);
                 } catch (IOException e) {
                     Util.Loge(TAG, "Install package error.(" + e.getMessage() + ")");
+                } finally {
+                    if (mError != ERROR_NONE) {
+                        UpdateStatus.setStatus(UpdateStatus.INSTALL_FAILED);
+                        notifyClientStatus();
+                    }
+                    // cancel dialog
+                    mOTAHandler.sendEmptyMessage(MSG_DIMISS_DIALOG);
                 }
             }
         }).start();
+    }
 
-        setError(ERROR_NONE);
-        return ERROR_NONE;
+    private boolean isBatteryEnough() {
+        if (mBatteryLevel >= 50) {
+            return true;
+        }
+
+        return mIsCharging;
     }
 
     private String getRobotCode() {
@@ -558,12 +580,7 @@ public class OTAUpdateService extends Service {
 
     private void popAlertDialog() {
         if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(mContext);
-            mProgressDialog.setTitle(R.string.app_name);
-            mProgressDialog.setMessage(mContext.getResources().getString(R.string.install_prepare));
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+            mProgressDialog = new InstallDialog(this, R.style.InstallTheme);
         }
         mProgressDialog.show();
     }

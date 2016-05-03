@@ -14,6 +14,7 @@ import android.os.RemoteException;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avatar.fota.service.IOTAUpdateService;
 import com.avatar.fota.service.IOTAUpdateCallback;
@@ -72,10 +73,16 @@ public class OTAUpdateActivity extends Activity{
 
                     case MSG_START_DOWNLOAD:
                         mDownloadBtn.setVisibility(View.INVISIBLE);
-                        mVersionView.startDownload();
-                        mIOTAService.download();
-
-                        createDownloadTask();
+                        if (mIOTAService.download() == OTAUpdateService.ERROR_NONE) {
+                            mVersionView.startDownload();
+                            createDownloadTask();
+                        }
+                        else {
+                            Util.Logd(TAG, "Download error:" + mIOTAService.getError());
+                            mDownloadBtn.setVisibility(View.VISIBLE);
+                            Toast.makeText(getApplicationContext(), R.string.tip_download_failed,
+                                    Toast.LENGTH_SHORT);
+                        }
                         break;
 
                     case MSG_START_INSTALL:
@@ -197,6 +204,7 @@ public class OTAUpdateActivity extends Activity{
     // run in ui thread
     private void handleResponse(String status) {
         Util.Logd(TAG, "handle response status:" + status);
+        int errSt;
 
         if (status.equals(UpdateStatus.SERVER_ERROR.toString())) {
             mQueryView.setErrorInfo(getString(R.string.detail_server_error));
@@ -221,13 +229,13 @@ public class OTAUpdateActivity extends Activity{
             else if (status.equals(UpdateStatus.DOWNLOAD_FAILED.toString())) {
                 mDownloadBtn.setVisibility(View.VISIBLE);
                 mVersionView.setNewVersion(newVer, getString(R.string.tip_download_failed));
-                mVersionView.setDownloadEnd();
+                mVersionView.setDownloadCancel();
                 cancelDownloadTask();
             }
             else if (status.equals(UpdateStatus.DOWNLOAD_OK.toString())) {
                 mDownloadBtn.setVisibility(View.INVISIBLE);
                 mVersionView.setNewVersion(newVer, getString(R.string.tip_download_ok));
-                mVersionView.setDownloadEnd();
+                mVersionView.setDownloadCancel();
                 mVersionView.setInstallEnable(true);
                 cancelDownloadTask();
             } else if (status.equals(UpdateStatus.DOWNLOADING.toString())) {
@@ -238,7 +246,21 @@ public class OTAUpdateActivity extends Activity{
             } else if (status.equals(UpdateStatus.STORAGE_INEQUACY.toString())) {
 
             } else if (status.equals(UpdateStatus.INSTALL_FAILED.toString())) {
-                if (mIOTAService.getError() == OTAUpdateService.ERROR_CHECK_FAILED) {
+                errSt = mIOTAService.getError();
+                Util.Logd(TAG, "install error:" + errSt);
+                if (errSt == OTAUpdateService.ERROR_FILE_NOTFOUND) {
+                    mVersionView.setWarning(getString(R.string.error_file_notfind));
+                    mDownloadBtn.setVisibility(View.VISIBLE);
+                }
+                else if (errSt == OTAUpdateService.ERROR_STORAGE) {
+                    mVersionView.setWarning(getString(R.string.error_storge_notenough));
+                    mVersionView.setInstallEnable(true);
+                }
+                else if (errSt == OTAUpdateService.ERROR_LOW_BATTERY) {
+                    mVersionView.setWarning(getString(R.string.error_battery_low));
+                    mVersionView.setInstallEnable(true);
+                }
+                else if (errSt == OTAUpdateService.ERROR_CHECK_FAILED) {
                     mVersionView.setWarning(getString(R.string.error_check_failed));
                     mDownloadBtn.setVisibility(View.VISIBLE);
                 }

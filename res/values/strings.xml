@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources >
 
     <string name="app_name">System Update</string>
     <string name="service_name">UpdateService</string>
@@ -21,53 +21,13 @@
     <string name="tip_download_failed">Download failed</string>
     <string name="tip_download_ok">Download complete</string>
 
-    <string name="install_prepare">Prepare to install update, please waiting...</string>
+    <string name="install_prepare">Prepare to install update, please waiting...(Need about 3min)</string>
+
     <string name="error_check_failed">Verify failed, Please download again.</string>
+    <string name="error_file_notfind">Update file not found, Please download again.</string>
+    <string name="error_storge_notenough">Storage space is not enough, cannot update now.</string>
+    <string name="error_battery_low">Battery power is insufficient,
+        please connect the charger and then update</string>
 
-
-    <!-- detail -->
-    <string name="detail_version_title">Version:</string>
-    <string name="detail_version_size">Size:</string>
-    <string name="detail_log_title">Change Log:</string>
-    <string name="detail_btn_download">Download</string>
-    <string name="detail_btn_goondownload">Resume</string>
-    <string name="detail_btn_downloading">Downloading ...</string>
-    <string name="detail_btn_check">Verify</string>
-    <string name="detail_btn_checking">Verifying ...</string>
-    <string name="detail_btn_retry">Download again</string>
-    <string name="detail_btn_install">Install</string>
-    <string name="detail_download_percent"><xliff:g id="download_percent">%s</xliff:g>\%</string>
-    <string name="detail_download_size"><xliff:g id="download_size">%s</xliff:g>/<xliff:g id="download_sum">%s</xliff:g></string>
-
-    <!-- notification -->
-    <string name="noti_title">System Update package</string>
-    <string name="noti_new">Found update, click to view details.</string>
-    <string name="noti_check">Download complete, click to verify.</string>
-    <string name="noti_checking">Download complete, verifying ...</string>
-    <string name="noti_install">Verify succeed, click to install.</string>
-    <string name="noti_finish">Congratulations, system update succeed.</string>
-    <string name="noti_install_fail">Install failed, please download again.</string>
-    <string name="noti_download_desp">Downloading...</string>
-    <string name="noti_download_ok">Download complete</string>
-    <string name="noti_download_fail">Download failed, please retry.</string>
-
-    <string name="noti_charging">Please connect the charger when upgrading</string>
-    <string name="noti_sapce_notenough">Storge is not enough</string>
-
-
-    <string name="dialog_download_fail">Download failed, please try again.</string>
-    <string name="dialog_check_fail">Verify failed, please download again.</string>
-    <string name="dialog_low_battery">"Power is too low, can't install the system update. Please charge the battery full and install again."</string>
-    <string name="ok">OK</string>
-    <string name="dialog_support_mobile_network">The current network is a mobile network, download update package may cost a lot of data usage, download by using WIFI network is recommended. Go on or not?</string>
-    <string name="go_on">Go on</string>
-    <string name="wifi_settings">Setup wifi network</string>
-    <string name="init_dialog">Init failed, please turn on the WIFI and check network settings.</string>
-
-
-    <string name="button_query">Check</string>
-    <string name="button_download">Download</string>
-    <string name="button_install">Install</string>
-    <string name="button_redownload">Download again</string>
 
 </resources>

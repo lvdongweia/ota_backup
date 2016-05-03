@@ -105,13 +105,12 @@
                     android:id="@+id/warn_text"
                     style="@style/WarningText"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10px"
-                    android:text="@string/dialog_low_battery"/>
+                    android:layout_marginLeft="10px"/>
             </LinearLayout>
 
             <Button
                 android:id="@+id/install_button"
-                android:layout_width="700.0px"
+                android:layout_width="874.0px"
                 android:layout_height="160.0px"
                 android:layout_marginTop="15px"
                 android:background="@drawable/install_button"

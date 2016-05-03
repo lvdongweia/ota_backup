@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-
+<resources>
     <string name="app_name">系统更新</string>
     <string name="service_name">升级服务</string>
     <string name="cancel">取消</string>
@@ -21,57 +20,10 @@
     <string name="tip_download_failed">下载失败</string>
     <string name="tip_download_ok">下载完成</string>
 
-    <string name="install_prepare">正在执行准备工作,请耐心等候...</string>
+    <string name="install_prepare">正在执行准备工作,请耐心等候...(大约需要３分钟)</string>
 
     <string name="error_check_failed">文件校验失败，请重新下载</string>
-
-
-
-    <!-- detail -->
-    <string name="detail_version_title">版本:</string>
-    <string name="detail_version_size">大小:</string>
-    <string name="detail_log_title">更新日志:</string>
-    <string name="detail_btn_download">开始下载</string>
-    <string name="detail_btn_goondownload">继续下载</string>
-    <string name="detail_btn_downloading">正在下载 ...</string>
-    <string name="detail_btn_check">开始验证</string>
-    <string name="detail_btn_checking">正在验证 ...</string>
-    <string name="detail_btn_retry">重新下载</string>
-    <string name="detail_btn_install">开始安装</string>
-    <string name="detail_download_percent"><xliff:g id="download_percent">%s</xliff:g>\%</string>
-    <string name="detail_download_size"><xliff:g id="download_size">%s</xliff:g>/<xliff:g id="download_sum">%s</xliff:g></string>
-
-    <!-- notification -->
-    <string name="noti_title">系统更新包</string>
-    <string name="noti_new">发现新版本，点击查看详情</string>
-    <string name="noti_check">下载完成，点此验证</string>
-    <string name="noti_checking">下载完成，正在验证 ...</string>
-
-    <string name="noti_install">验证成功，点此安装</string>
-    <string name="noti_finish">恭喜你，系统升级成功</string>
-    <string name="noti_install_fail">系统升级失败，点此重新下载</string>
-    <string name="noti_download_desp">下载中...</string>
-    <string name="noti_download_ok">下载完成</string>
-    <string name="noti_download_fail">下载失败，请重新下载</string>
-
-    <string name="noti_charging">升级时请连接充电器</string>
-    <string name="noti_sapce_notenough">存储空间不足</string>
-
-
-
-    <string name="dialog_download_fail">下载失败，请重试</string>
-    <string name="dialog_check_fail">验证失败，请重新下载</string>
-    <string name="dialog_low_battery">电量过低，无法安装系统更新。</string>
-    <string name="ok">确定</string>
-    <string name="dialog_support_mobile_network">您当前使用的是移动网络，下载更新可能会产生较大的流量费用，建议使用WIFI网络下载，是否继续？</string>
-    <string name="go_on">继续</string>
-    <string name="wifi_settings">设置WIFI</string>
-    <string name="init_dialog">初始化失败，请打开WIFI并检查网络设置。</string>
-
-
-    <string name="button_query">检查更新</string>
-    <string name="button_download">下载更新</string>
-    <string name="button_install">安装更新</string>
-    <string name="button_redownload">重新下载</string>
-
+    <string name="error_file_notfind">找不到安装文件，请重新下载</string>
+    <string name="error_storge_notenough">存储空间不足，无法进行更行</string>
+    <string name="error_battery_low">电池电量不足，请连接充电器后再进行更新</string>
 </resources>

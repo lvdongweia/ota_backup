@@ -8,6 +8,6 @@ interface IOTAUpdateService {
     String getNewVersion();
     int progress();
     int download();
-    int install();
+    void install();
     int getError();
 }

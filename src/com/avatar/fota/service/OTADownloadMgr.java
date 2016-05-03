@@ -211,6 +211,12 @@ public class OTADownloadMgr {
             if (url == null)
                 return;
 
+            // 删除旧文件
+            File updatePackage = new File(ConstValue.DOWNLOAD_PATH, ConstValue.INSTALL_PACKAGE);
+            if (updatePackage.exists()) {
+                updatePackage.delete();
+            }
+
             Uri resource = Uri.parse(url);
             DownloadManager.Request dwloadRequest =
                 new DownloadManager.Request(resource);
@@ -218,8 +224,6 @@ public class OTADownloadMgr {
             // 设置下载请求属性
             dwloadRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
             dwloadRequest.setAllowedOverRoaming(false);
-            dwloadRequest.setTitle(mContext.getString(R.string.noti_title));
-            dwloadRequest.setDescription(mContext.getString(R.string.noti_download_desp));
             dwloadRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
             dwloadRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                 ConstValue.DOWNLOAD_TMP_NAME);

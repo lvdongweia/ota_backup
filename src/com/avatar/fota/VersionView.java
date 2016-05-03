@@ -106,20 +106,16 @@ public class VersionView extends LinearLayout{
         mProgressTextView.setText("0%");
     }
 
-    public void setDownloadEnd() {
+    public void setDownloadCancel() {
         mProgressBar.setVisibility(View.GONE);
         mProgressTextView.setVisibility(View.GONE);
         mDevideLineView.setVisibility(View.VISIBLE);
     }
 
-    public void setProgress(int p) {
-        mProgressBar.setProgress(p);
-        mProgressTextView.setText(p + "%");
-    }
 
     public void setInstallEnable(boolean enabled) {
+        mInstallBtnView.setVisibility(View.VISIBLE);
         if (enabled) {
-            mInstallBtnView.setVisibility(View.VISIBLE);
             mInstallBtnView.setEnabled(true);
         }
         else {
@@ -128,12 +124,18 @@ public class VersionView extends LinearLayout{
     }
 
     public void startInstall() {
+        cancelWarning();
         mInstallBtnView.setEnabled(false);
     }
 
-    public void setInatallEnd() {
+    public void setInatallCancel() {
         mInstallBtnView.setEnabled(true);
         mInstallBtnView.setVisibility(View.GONE);
+    }
+
+    public void setProgress(int p) {
+        mProgressBar.setProgress(p);
+        mProgressTextView.setText(p + "%");
     }
 
     private OnClickListener mInstallClick = new OnClickListener() {
@@ -142,6 +144,5 @@ public class VersionView extends LinearLayout{
             mHandler.sendEmptyMessage(OTAUpdateActivity.MSG_START_INSTALL);
         }
     };
-
 
 }

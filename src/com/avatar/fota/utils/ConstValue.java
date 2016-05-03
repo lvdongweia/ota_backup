@@ -50,5 +50,6 @@ public class ConstValue {
     public static final String UPDATE_RF = "rf";
     public static final String UPDATE_RB = "rb";
 
-    public static final long INSTALL_MEMORY_NEED = 1050 * 1024 * 1024;  // byte
+    public static final long DOWNLOAD_MEMORY_NEED = 400 * 1024 * 1024; // 400M
+    public static final long INSTALL_MEMORY_NEED = 700 * 1024 * 1024; // 700M
 }

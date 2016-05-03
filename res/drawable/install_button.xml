@@ -2,13 +2,13 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="false"
         android:state_enabled="true"
-        android:drawable="@drawable/btn_green"/>
+        android:drawable="@drawable/btn_install"/>
 
     <item android:state_pressed="true"
         android:state_enabled="true"
-        android:drawable="@drawable/btn_green_on"/>
+        android:drawable="@drawable/btn_install_on"/>
 
     <item android:state_enabled="false"
-        android:drawable="@drawable/btn_gray"/>
+        android:drawable="@drawable/btn_install_gray"/>
 
 </selector>
