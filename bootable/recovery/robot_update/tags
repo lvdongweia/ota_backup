@@ -1,0 +1,137 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.6	//
+AddImageElement	Image.cpp	/^void CImage::AddImageElement(PIMAGEELEMENT element)$/;"	f	class:android::CImage
+CANPACKET	rmCAN.h	/^struct CANPACKET$/;"	s
+CAN_DATA2ID_D_SMOD	flexcan.cpp	42;"	d	file:
+CAN_DATA2ID_D_SYS	flexcan.cpp	40;"	d	file:
+CAN_DATA2ID_PRIORITY	flexcan.cpp	38;"	d	file:
+CAN_DATA2ID_PR_MASK	flexcan.cpp	32;"	d	file:
+CAN_DATA2ID_SMOD_MASK	flexcan.cpp	34;"	d	file:
+CAN_DATA2ID_SUM	flexcan.cpp	43;"	d	file:
+CAN_DATA2ID_SUM_MASK	flexcan.cpp	35;"	d	file:
+CAN_DATA2ID_SYS_MASK	flexcan.cpp	33;"	d	file:
+CAN_DATA2ID_S_SMOD	flexcan.cpp	41;"	d	file:
+CAN_DATA2ID_S_SYS	flexcan.cpp	39;"	d	file:
+CAN_DATA_MAX_LEN	flexcan.h	18;"	d
+CAN_DATA_TOTAL_SIZE	flexcan.h	21;"	d
+CAN_D_SMOD_OFFSET	flexcan.cpp	24;"	d	file:
+CAN_D_SYS_OFFSET	flexcan.cpp	27;"	d	file:
+CAN_ID2DATA_D_MODULE	flexcan.cpp	61;"	d	file:
+CAN_ID2DATA_D_SMOD	flexcan.cpp	58;"	d	file:
+CAN_ID2DATA_D_SMOD_MASK	flexcan.cpp	51;"	d	file:
+CAN_ID2DATA_D_SYS	flexcan.cpp	56;"	d	file:
+CAN_ID2DATA_D_SYS_MASK	flexcan.cpp	49;"	d	file:
+CAN_ID2DATA_PRIORITY	flexcan.cpp	54;"	d	file:
+CAN_ID2DATA_PR_MASK	flexcan.cpp	47;"	d	file:
+CAN_ID2DATA_SUM	flexcan.cpp	59;"	d	file:
+CAN_ID2DATA_SUM_MASK	flexcan.cpp	52;"	d	file:
+CAN_ID2DATA_S_MODULE	flexcan.cpp	60;"	d	file:
+CAN_ID2DATA_S_SMOD	flexcan.cpp	57;"	d	file:
+CAN_ID2DATA_S_SMOD_MASK	flexcan.cpp	50;"	d	file:
+CAN_ID2DATA_S_SYS	flexcan.cpp	55;"	d	file:
+CAN_ID2DATA_S_SYS_MASK	flexcan.cpp	48;"	d	file:
+CAN_PRIORITY_OFFSET	flexcan.cpp	29;"	d	file:
+CAN_SUB_PACKET_OFFSET	flexcan.h	19;"	d
+CAN_SUB_PACKET_SIZE	flexcan.h	20;"	d
+CAN_SUM_OFFSET	flexcan.cpp	26;"	d	file:
+CAN_S_SMOD_OFFSET	flexcan.cpp	25;"	d	file:
+CAN_S_SYS_OFFSET	flexcan.cpp	28;"	d	file:
+CImage	Image.cpp	/^CImage::CImage()$/;"	f	class:android::CImage
+CImage	Image.h	/^class CImage$/;"	c	namespace:android
+CRC16_H	crc16.h	2;"	d
+CheckFileExt	Image.cpp	/^bool CImage::CheckFileExt(const char *path)$/;"	f	class:android::CImage
+ClearVector	Image.cpp	/^void CImage::ClearVector()$/;"	f	class:android::CImage
+CompactElements	Image.cpp	/^void CImage::CompactElements()$/;"	f	class:android::CImage
+CompareElement	Image.cpp	/^bool CImage::CompareElement(PIMAGEELEMENT pElem1, PIMAGEELEMENT pElem2)$/;"	f	class:android::CImage
+DOUBLE_BYTE	Image.h	14;"	d
+GetDataSize	Image.h	/^    long GetDataSize() { return m_DataSize; }$/;"	f	class:android::CImage
+GetElement	Image.cpp	/^PIMAGEELEMENT CImage::GetElement(int rank)$/;"	f	class:android::CImage
+GetNbElements	Image.cpp	/^int CImage::GetNbElements()$/;"	f	class:android::CImage
+IMAGEELEMENT	Image.h	/^}IMAGEELEMENT, *PIMAGEELEMENT;$/;"	t	namespace:android	typeref:struct:android::__anon1
+IMAGE_H	Image.h	9;"	d
+InCompletePackets	rmCAN.cpp	/^UDT_MAP_INT_FLEXCAN InCompletePackets;$/;"	v
+LOCAL_CFLAGS	Android.mk	/^LOCAL_CFLAGS := -D_STLP_USE_NO_IOSTREAMS -D_STLP_USE_MALLOC$/;"	m
+LOCAL_C_INCLUDES	Android.mk	/^LOCAL_C_INCLUDES := \\$/;"	m
+LOCAL_MODULE	Android.mk	/^LOCAL_MODULE := libsubsysupdate$/;"	m
+LOCAL_PATH	Android.mk	/^LOCAL_PATH := $(call my-dir)$/;"	m
+LOCAL_SRC_FILES	Android.mk	/^LOCAL_SRC_FILES := \\$/;"	m
+LOCAL_STATIC_LIBRARIES	Android.mk	/^LOCAL_STATIC_LIBRARIES := \\$/;"	m
+LOG_TAG	Image.cpp	18;"	d	file:
+LOG_TAG	Image.cpp	19;"	d	file:
+LoadHex	Image.cpp	/^bool CImage::LoadHex(const char *path, int addr_bytes)$/;"	f	class:android::CImage
+PACKET_MAX_NUM	flexcan.h	17;"	d
+PIMAGEELEMENT	Image.h	/^}IMAGEELEMENT, *PIMAGEELEMENT;$/;"	t	namespace:android	typeref:struct:android::__anon1
+PacketCompare	rmCAN.cpp	/^static int PacketCompare(const struct flexcan_packet &lpacket,$/;"	f	file:
+ROBOT_CAN_INTERFACE	flexcan.h	15;"	d
+RecvList	rmCAN.cpp	/^UDT_LIST_CANPACKET  RecvList;$/;"	v
+SINGLE_BYTE	Image.h	13;"	d
+TAG	flexcan.cpp	21;"	d	file:
+TAG	rmCAN.cpp	24;"	d	file:
+TimeOutId	rmCAN.cpp	/^const uint8_t TimeOutId = 127;$/;"	v
+UDT_LIST_CANPACKET	rmCAN.cpp	/^typedef std::list<struct CANPACKET*>       UDT_LIST_CANPACKET;       \/* receive list *\/$/;"	t	file:
+UDT_MAP_FLEXCAN	rmCAN.cpp	/^typedef std::map<uint8_t, UDT_VEC_FLEXCAN> UDT_MAP_FLEXCAN;          \/* <packet_id, vector> *\/$/;"	t	file:
+UDT_MAP_INT_FLEXCAN	rmCAN.cpp	/^typedef std::map<uint8_t, UDT_MAP_FLEXCAN> UDT_MAP_INT_FLEXCAN;      \/* <src_id, map> *\/$/;"	t	file:
+UDT_VEC_FLEXCAN	rmCAN.cpp	/^typedef std::vector<struct flexcan_packet> UDT_VEC_FLEXCAN;          \/* multiple packet vector *\/$/;"	t	file:
+UPDATE_MODULE	rmCAN.cpp	/^const int UPDATE_MODULE = RM_UPGRADE_ID;$/;"	v
+_FLEXCAN_H	flexcan.h	9;"	d
+_RM_CAN_H	rmCAN.h	9;"	d
+__flexcan_recv	flexcan.cpp	/^static int __flexcan_recv(struct can_frame *frame)$/;"	f	file:
+__flexcan_send	flexcan.cpp	/^static int __flexcan_send(struct can_frame *frame)$/;"	f	file:
+_getCanPacket	rmCAN.cpp	/^static CANPACKET *_getCanPacket(int priority, int src_id, int dst_id, const void *pdata, int len)$/;"	f	file:
+_recvFromCan	rmCAN.cpp	/^static int _recvFromCan(struct flexcan_packet *packet)$/;"	f	file:
+_sendToCan	rmCAN.cpp	/^static int _sendToCan(const struct flexcan_packet *packet)$/;"	f	file:
+_split_whole_name	Image.cpp	/^void CImage::_split_whole_name(const char *whole_name, char *fname, char *ext)$/;"	f	class:android::CImage
+_splitpath	Image.cpp	/^void CImage::_splitpath(const char *path, char *drive, char *dir, char *fname, char *ext)$/;"	f	class:android::CImage
+_strupr	Image.cpp	/^char* CImage::_strupr(char *str)$/;"	f	class:android::CImage
+address	Image.h	/^    long address;$/;"	m	struct:android::__anon1
+android	Image.cpp	/^namespace android$/;"	n	file:
+android	Image.h	/^namespace android$/;"	n
+closeCANDevice	rmCAN.cpp	/^void closeCANDevice()$/;"	f
+crc16	crc16.cpp	/^uint16_t crc16(const uint8_t *data, int len)$/;"	f
+d_id	flexcan.h	/^    uint8_t d_id;$/;"	m	struct:flexcan_packet
+data	Image.h	/^    uint8_t *data;$/;"	m	struct:android::__anon1
+data	flexcan.h	/^    uint8_t data[CAN_DATA_MAX_LEN];$/;"	m	struct:flexcan_packet
+debugInfo	rmCAN.cpp	/^static void debugInfo(CANPACKET *packet)$/;"	f	file:
+dst_id	rmCAN.h	/^    uint8_t dst_id;$/;"	m	struct:CANPACKET
+flexcan_device_close	flexcan.cpp	/^int flexcan_device_close()$/;"	f
+flexcan_device_open	flexcan.cpp	/^int flexcan_device_open()$/;"	f
+flexcan_packet	flexcan.h	/^struct flexcan_packet$/;"	s
+flexcan_recv	flexcan.cpp	/^int flexcan_recv(struct flexcan_packet *packet)$/;"	f
+flexcan_send	flexcan.cpp	/^int flexcan_send(const struct flexcan_packet *packet)$/;"	f
+g_PacketsId	rmCAN.cpp	/^static uint8_t g_PacketsId = 0;$/;"	v	file:
+g_flag	rmCAN.cpp	/^static bool g_flag = true;$/;"	v	file:
+g_recvThread	rmCAN.cpp	/^static pthread_t g_recvThread = 0;$/;"	v	file:
+getCanPacket	rmCAN.cpp	/^static CANPACKET *getCanPacket(UDT_VEC_FLEXCAN packets)$/;"	f	file:
+getCanPacket	rmCAN.cpp	/^static CANPACKET *getCanPacket(const struct flexcan_packet *can_data)$/;"	f	file:
+isRecvListEmpty	rmCAN.cpp	/^static bool isRecvListEmpty()$/;"	f	file:
+len	flexcan.h	/^    uint32_t len;                   \/* real data len <= CAN_DATA_MAX_LEN *\/$/;"	m	struct:flexcan_packet
+len	rmCAN.h	/^    uint32_t len;$/;"	m	struct:CANPACKET
+length	Image.h	/^    long length;$/;"	m	struct:android::__anon1
+list_mutex	rmCAN.cpp	/^static pthread_mutex_t list_mutex;$/;"	v	file:
+m_DataSize	Image.h	/^    long m_DataSize;$/;"	m	class:android::CImage
+m_FilePath	Image.h	/^    char m_FilePath[512];$/;"	m	class:android::CImage
+m_pElements	Image.cpp	/^vector<PIMAGEELEMENT> m_pElements;$/;"	v
+openCANDevice	rmCAN.cpp	/^int openCANDevice()$/;"	f
+p_data	rmCAN.h	/^    void    *p_data;$/;"	m	struct:CANPACKET
+packet_SN	flexcan.h	/^    uint8_t packet_SN;              \/* packets number *\/$/;"	m	struct:flexcan_packet
+packet_id	flexcan.h	/^    uint8_t packet_id;              \/* uniquely identifies a entry *\/$/;"	m	struct:flexcan_packet
+popFromRecvList	rmCAN.cpp	/^static void popFromRecvList(CANPACKET **packet)$/;"	f	file:
+priority	flexcan.h	/^    uint8_t priority;$/;"	m	struct:flexcan_packet
+priority	rmCAN.h	/^    uint8_t priority;$/;"	m	struct:CANPACKET
+pushToRecvList	rmCAN.cpp	/^static void pushToRecvList(CANPACKET *packet)$/;"	f	file:
+readCANData	rmCAN.cpp	/^int readCANData(uint8_t exp_s_id, uint8_t exp_msg_type, uint8_t **pdata, int timeout)$/;"	f
+recvFromCan	rmCAN.cpp	/^static int recvFromCan()$/;"	f	file:
+removePacketId	rmCAN.cpp	/^static void removePacketId(UDT_MAP_FLEXCAN &packets, UDT_MAP_FLEXCAN::iterator itt)$/;"	f	file:
+s_id	flexcan.h	/^    uint8_t s_id;$/;"	m	struct:flexcan_packet
+sendCANData	rmCAN.cpp	/^int sendCANData(uint8_t d_id, void *pdata, int len)$/;"	f
+sendToCan	rmCAN.cpp	/^static int sendToCan(const struct CANPACKET *packet)$/;"	f	file:
+sock_fd	rmCAN.cpp	/^static int sock_fd = -1;$/;"	v	file:
+sockfd	flexcan.cpp	/^static int sockfd = -1;$/;"	v	file:
+src_id	rmCAN.h	/^    uint8_t src_id;$/;"	m	struct:CANPACKET
+sum	flexcan.h	/^    uint8_t sum;                    \/* starting from 0 *\/$/;"	m	struct:flexcan_packet
+thread_recv	rmCAN.cpp	/^static void *thread_recv(void *arg)$/;"	f	file:
+~CImage	Image.cpp	/^CImage::~CImage()$/;"	f	class:android::CImage
